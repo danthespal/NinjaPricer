@@ -46,6 +46,12 @@ namespace OriathHub.Plugins.NinjaPricer
         /// <summary>Currency unit prices are displayed in.</summary>
         public DisplayUnit Unit = DisplayUnit.Exalted;
 
+        /// <summary>
+        ///     Only draw price boxes for items worth at least this much, expressed in the selected
+        ///     <see cref="Unit"/>. Zero shows everything priced.
+        /// </summary>
+        public float MinPrice = 0f;
+
         // --- Advanced appearance ---
 
         /// <summary>Draw the highlight border (the "yellow box") around each priced cell.</summary>

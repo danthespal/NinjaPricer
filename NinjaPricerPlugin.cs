@@ -106,6 +106,15 @@ namespace OriathHub.Plugins.NinjaPricer
                     this.settings.Unit = (DisplayUnit)unit;
                 }
 
+                var unitName = this.settings.Unit == DisplayUnit.Divine ? "div" : "ex";
+                ImGui.InputFloat($"Only show items priced above ({unitName})", ref this.settings.MinPrice, 0.1f, 1f, "%.2f");
+                if (this.settings.MinPrice < 0f)
+                {
+                    this.settings.MinPrice = 0f;
+                }
+
+                ImGui.TextDisabled("Threshold is in the selected display unit. 0 shows everything priced.");
+
                 ImGui.Separator();
                 ImGui.TextDisabled($"Pricing against '{Core.Prices.League}' (set the league in App Settings > Basic > poe.ninja Prices).");
                 ImGui.EndTabItem();
@@ -272,6 +281,14 @@ namespace OriathHub.Plugins.NinjaPricer
         {
             // Only box items that resolved to a price.
             if (item.ValueExalted <= 0)
+            {
+                return;
+            }
+
+            // Hide items below the user's threshold. The threshold is expressed in the display unit,
+            // and divisor converts the internal exalted value into that same unit, so compare directly.
+            var displayValue = item.ValueExalted / divisor;
+            if (displayValue < this.settings.MinPrice)
             {
                 return;
             }
