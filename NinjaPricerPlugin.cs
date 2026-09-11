@@ -55,7 +55,7 @@ namespace OriathHub.Plugins.NinjaPricer
         public override string Author => "OriathHub";
 
         /// <inheritdoc/>
-        public override string Version => "1.0.0";
+        public override string Version => "1.0.1";
 
         /// <inheritdoc/>
         public override void OnEnable(bool isGameOpened)
@@ -211,7 +211,7 @@ namespace OriathHub.Plugins.NinjaPricer
             var drawnEntities = new HashSet<IntPtr>();
             foreach (var cell in tab)
             {
-                if (!new ViewportAnchoredUiElement(cell.Element.Address, viewport).IsVisible)
+                if (!ViewportVisibility.IsVisible(cell.Element, viewport))
                 {
                     continue;
                 }
@@ -350,7 +350,7 @@ namespace OriathHub.Plugins.NinjaPricer
                 var viewport = gameUi.LeftPanel;
                 foreach (var cell in stash)
                 {
-                    if (new ViewportAnchoredUiElement(cell.Element.Address, viewport).IsVisible &&
+                    if (ViewportVisibility.IsVisible(cell.Element, viewport) &&
                         CursorInside(cell.Element.Position, cell.Element.Position + cell.Element.Size))
                     {
                         return true;
