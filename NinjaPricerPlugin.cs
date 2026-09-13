@@ -55,7 +55,7 @@ namespace OriathHub.Plugins.NinjaPricer
         public override string Author => "OriathHub";
 
         /// <inheritdoc/>
-        public override string Version => "1.0.1";
+        public override string Version => "1.0.2";
 
         /// <inheritdoc/>
         public override void OnEnable(bool isGameOpened)
