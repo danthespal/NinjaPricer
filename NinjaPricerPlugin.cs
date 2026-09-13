@@ -98,6 +98,23 @@ namespace OriathHub.Plugins.NinjaPricer
             {
                 ImGui.Checkbox("Draw price boxes over open stash tab", ref this.settings.ShowStashOverlay);
                 ImGui.Checkbox("Draw price boxes over main inventory", ref this.settings.ShowInventoryOverlay);
+
+                ImGui.Checkbox("Draw stash tab value", ref this.settings.ShowStashTotalValue);
+                if (this.settings.ShowStashTotalValue)
+                {
+                    ImGui.Indent();
+                    ImGui.DragFloat2("Stash value position (X, Y)", ref this.settings.StashTotalValuePosition, 1f, 0f, 4000f, "%.0f");
+                    ImGui.Unindent();
+                }
+
+                ImGui.Checkbox("Draw inventory value", ref this.settings.ShowInventoryTotalValue);
+                if (this.settings.ShowInventoryTotalValue)
+                {
+                    ImGui.Indent();
+                    ImGui.DragFloat2("Inventory value position (X, Y)", ref this.settings.InventoryTotalValuePosition, 1f, 0f, 4000f, "%.0f");
+                    ImGui.Unindent();
+                }
+
                 ImGui.Checkbox("While hovering, show only the hovered item's price (avoid covering tooltip)", ref this.settings.ShowOnlyHoveredItemPrice);
 
                 var unit = (int)this.settings.Unit;
@@ -153,12 +170,12 @@ namespace OriathHub.Plugins.NinjaPricer
             this.showOnlyHoveredBox = this.settings.ShowOnlyHoveredItemPrice && this.CursorOverAnyTrackedItem();
 
             // The price-box overlays draw straight to the background draw list.
-            if (this.settings.ShowStashOverlay)
+            if (this.settings.ShowStashOverlay || this.settings.ShowStashTotalValue)
             {
                 this.DrawStashOverlay();
             }
 
-            if (this.settings.ShowInventoryOverlay)
+            if (this.settings.ShowInventoryOverlay || this.settings.ShowInventoryTotalValue)
             {
                 this.DrawInventoryOverlay();
             }
@@ -199,6 +216,25 @@ namespace OriathHub.Plugins.NinjaPricer
             var unitLabel = toDivine ? "div" : "ex";
 
             var draw = ImGui.GetBackgroundDrawList();
+
+            if (this.settings.ShowStashTotalValue)
+            {
+                double totalExalted = 0;
+                foreach (var item in inv.Items)
+                {
+                    if (item.ValueExalted > 0)
+                    {
+                        totalExalted += item.ValueExalted;
+                    }
+                }
+
+                this.DrawTotalValue(draw, this.settings.StashTotalValuePosition, totalExalted / divisor, unitLabel);
+            }
+
+            if (!this.settings.ShowStashOverlay)
+            {
+                return;
+            }
 
             // Bind only cells whose occupied item entity is present in the matching ServerData inventory.
             var itemsByEntity = new Dictionary<IntPtr, StashItem>(inv.Items.Count);
@@ -257,6 +293,25 @@ namespace OriathHub.Plugins.NinjaPricer
 
             var draw = ImGui.GetBackgroundDrawList();
 
+            if (this.settings.ShowInventoryTotalValue)
+            {
+                double totalExalted = 0;
+                foreach (var item in inv.Items)
+                {
+                    if (item.ValueExalted > 0)
+                    {
+                        totalExalted += item.ValueExalted;
+                    }
+                }
+
+                this.DrawTotalValue(draw, this.settings.InventoryTotalValuePosition, totalExalted / divisor, unitLabel);
+            }
+
+            if (!this.settings.ShowInventoryOverlay)
+            {
+                return;
+            }
+
             var itemsByEntity = new Dictionary<IntPtr, StashItem>(inv.Items.Count);
             foreach (var item in inv.Items)
             {
@@ -273,6 +328,19 @@ namespace OriathHub.Plugins.NinjaPricer
                     this.DrawPriceBox(draw, item, cell, divisor, unitLabel);
                 }
             }
+        }
+
+        // Draws the total value label at the configured screen position for stash or inventory.
+        private void DrawTotalValue(ImDrawListPtr draw, Vector2 position, double total, string unitLabel)
+        {
+            var label = $"Total: {total:0.##} {unitLabel}";
+            var textSize = ImGui.CalcTextSize(label);
+
+            draw.AddRectFilled(
+                new Vector2(position.X - 3f, position.Y - 2f),
+                new Vector2(position.X + textSize.X + 3f, position.Y + textSize.Y + 2f),
+                ImGuiHelper.Color(this.settings.BackgroundColor));
+            draw.AddText(position, ImGuiHelper.Color(this.settings.TextColor), label);
         }
 
         // Draws one item's price box: the optional highlight border plus the price label placed per the

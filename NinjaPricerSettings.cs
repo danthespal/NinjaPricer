@@ -40,6 +40,18 @@ namespace OriathHub.Plugins.NinjaPricer
         /// <summary>Draw price boxes over the items in the main inventory (right panel).</summary>
         public bool ShowInventoryOverlay = true;
 
+        /// <summary>Draw total value of items in the currently-open stash tab.</summary>
+        public bool ShowStashTotalValue = false;
+
+        /// <summary>Screen position for the stash tab total value display.</summary>
+        public Vector2 StashTotalValuePosition = new(15f, 770f);
+
+        /// <summary>Draw total value of items in the main inventory.</summary>
+        public bool ShowInventoryTotalValue = false;
+
+        /// <summary>Screen position for the main inventory total value display.</summary>
+        public Vector2 InventoryTotalValuePosition = new(1380f, 870f);
+
         /// <summary>While an item is hovered, show only that item's price box and hide the others, so none cover the game's item tooltip.</summary>
         public bool ShowOnlyHoveredItemPrice = true;
 
