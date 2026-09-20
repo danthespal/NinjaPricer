@@ -1,4 +1,4 @@
-namespace OriathHub.Plugins.NinjaPricer
+﻿namespace OriathHub.Plugins.NinjaPricer
 {
     using Coroutine;
     using ImGuiNET;
@@ -55,7 +55,11 @@ namespace OriathHub.Plugins.NinjaPricer
         public override string Author => "OriathHub";
 
         /// <inheritdoc/>
-        public override string Version => "1.0.2";
+#if DEBUG
+        public override string Version => "0.0.0-dev";
+#else
+        public override string Version => PluginVersion.Value;
+#endif
 
         /// <inheritdoc/>
         public override void OnEnable(bool isGameOpened)
@@ -65,7 +69,11 @@ namespace OriathHub.Plugins.NinjaPricer
             this.visibleStashLease = ImportantUiElements.RequestVisibleStashItems();
             this.visibleInventoryLease = ImportantUiElements.RequestVisibleInventoryItems();
 
-            this.refreshCoroutine = CoroutineHandler.Start(this.RefreshSnapshot(), "NinjaPricer.RefreshSnapshot");
+            // StartCoroutine, not CoroutineHandler.Start: it ties the coroutine to the plugin
+            // lifetime so the host force-cancels it on disable/reload/unload even if OnDisable is
+            // skipped or throws first. An untracked coroutine left running against an unloaded
+            // plugin throws every frame and pins the plugin's collectible load context.
+            this.refreshCoroutine = this.StartCoroutine(this.RefreshSnapshot(), "NinjaPricer.RefreshSnapshot");
         }
 
         /// <inheritdoc/>
